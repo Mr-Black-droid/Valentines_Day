@@ -251,7 +251,7 @@ function drawPetals(x, y, a, col, pSize) {
 
 function drawTerminalUI() {
   fill(0, 255, 150); textFont('Courier New'); textSize(14); textAlign(LEFT);
-  let lines = "> [SYSTEM]: Finalizing bouquet...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
+  let lines = "> [SYSTEM]: Gentleman at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
   if (frameCount % 2 === 0 && charIndex < lines.length) { terminalText += lines.charAt(charIndex); charIndex++; }
   noStroke(); text(terminalText, 30, height - 140);
   if (charIndex >= lines.length) {
