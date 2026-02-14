@@ -9,7 +9,6 @@ let eventTimer = 0;
 let photoPos, moonPos;
 
 function preload() {
-  // Ensure these file names match your GitHub uploads EXACTLY
   myImage = loadImage('Shannel.jpeg');
   mySong = loadSound('music.mpeg'); 
 }
@@ -23,14 +22,12 @@ function setup() {
   cnv.style('-webkit-user-select', 'none');
   cnv.style('user-select', 'none');
 
-  // The moment you two met (Jan 12, 2026, 6:46 PM)
   startTime = new Date(2026, 0, 12, 18, 46); 
   angleMode(DEGREES);
   
   photoPos = createVector(width/2, height/2);
   moonPos = createVector(width/2, height/2);
 
-  // Initialize background stars
   for (let i = 0; i < 100; i++) {
     stars.push({
       x: random(width), y: random(height),
@@ -53,15 +50,11 @@ function draw() {
 // --- SYNCED INTERACTION LOGIC ---
 
 function startNow() {
-  // Only trigger if Link is shown, not started, and music is buffered
   if (showLink && !experienceStarted && mySong.isLoaded()) {
-    
-    // 1. Immediate Audio Unlock (Crucial for Safari)
     userStartAudio(); 
     mySong.setVolume(1.0);
     mySong.play(); 
     
-    // 2. Instant Animation Trigger
     experienceStarted = true;
     eventTimer = 0;
     msgOpacity = 0;
@@ -71,7 +64,7 @@ function startNow() {
 
 function touchStarted() {
   startNow();
-  return false; // Prevents Safari from delaying the tap
+  return false; 
 }
 
 function mousePressed() {
@@ -81,12 +74,10 @@ function mousePressed() {
 // --- VISUAL STAGES ---
 
 function drawBouquetStage() {
-    // Background flowers
     drawFloatingFlower(width * 0.15, height * 0.15, d * 0.45, color(130, 80, 255, 140));
     drawFloatingFlower(width * 0.85, height * 0.15, d * 0.45, color(0, 200, 200, 140));
     drawFloatingFlower(width * 0.85, height * 0.85, d * 0.45, color(255, 140, 120, 140));
 
-    // Central Flower
     push();
     translate(width / 2, height / 2 - 50);
     drawAura(d, color(255, 60, 100)); 
@@ -98,7 +89,6 @@ function drawBouquetStage() {
     }
     pop();
     
-    // Grow animation
     if (d < 180) {
       d += 0.8;
     } else if (mySong.isLoaded()) {
@@ -111,7 +101,6 @@ function drawBouquetStage() {
 function drawWhiteHoleTransition() {
   eventTimer += (1/60); 
   
-  // 1. THE ACCRETION DISC (4s Spew + 3s Collapse)
   if (eventTimer < 7) { 
     push();
     translate(width/2, height/2);
@@ -134,7 +123,6 @@ function drawWhiteHoleTransition() {
     pop();
   }
 
-  // 2. THE MOVEMENT LOGIC
   if (eventTimer > 0.2) {
     let targetPhotoY = height/2 + sin(frameCount * 1.5) * 5;
     photoPos.y = lerp(photoPos.y, targetPhotoY, 0.035);
@@ -143,10 +131,8 @@ function drawWhiteHoleTransition() {
     if (msgOpacity < 255) msgOpacity += 1.8;
   }
 
-  // 3. FINAL RENDER
   if (msgOpacity > 5) {
     drawCrescentMoon(moonPos.x, moonPos.y, 0.8);
-    
     let imgRatio = myImage.width / myImage.height;
     let drawW = width * 0.45; 
     let drawH = drawW / imgRatio;
@@ -163,7 +149,6 @@ function drawWhiteHoleTransition() {
     
     if (msgOpacity > 150) {
       drawRevealedText(photoPos.x, photoPos.y, drawW);
-      // Fixed Footer Text
       fill(0, 255, 150, msgOpacity - 100); 
       textAlign(CENTER); textFont('Courier New'); textSize(12);
       text("> [STATUS]: Wassup Short-Circuit. Enjoy the view.😉", width / 2, height - 60);
@@ -171,14 +156,14 @@ function drawWhiteHoleTransition() {
   }
 }
 
-// --- HELPER COMPONENTS ---
+// --- UPDATED TERMINAL UI (OPTION 1) ---
 
 function drawTerminalUI() {
   fill(0, 255, 150); textFont('Courier New'); textAlign(LEFT);
   
   textSize(14);
   textStyle(NORMAL);
-  let lines = "> [SYSTEM]: Gentleman at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
+  let lines = "> [SYSTEM]: Gentlemn at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
   if (frameCount % 2 === 0 && charIndex < lines.length) { 
     terminalText += lines.charAt(charIndex); 
     charIndex++; 
@@ -186,14 +171,13 @@ function drawTerminalUI() {
   noStroke(); text(terminalText, 30, height - 140);
 
   if (charIndex >= lines.length) {
-    // BOLD ITALIC COUNTER (Your requested change)
+    // OPTION 1: Smaller text and shifted left to ensure full string fits
     push();
     textStyle(BOLDITALIC);
-    textSize(15);
-    text("> [STATUS]: Train incident: " + calculateTime(startTime), 30, height - 80);
+    textSize(13); 
+    text("> [STATUS]: Train incident: " + calculateTime(startTime), 20, height - 80);
     pop();
 
-    // Pulse prompt
     push();
     fill(255, abs(sin(frameCount * 3)) * 255); 
     textAlign(CENTER);
