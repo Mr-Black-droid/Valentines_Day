@@ -9,6 +9,7 @@ let eventTimer = 0;
 let photoPos, moonPos;
 
 function preload() {
+  // Ensure these file names match your GitHub uploads EXACTLY
   myImage = loadImage('Shannel.jpeg');
   mySong = loadSound('music.mpeg'); 
 }
@@ -16,16 +17,20 @@ function preload() {
 function setup() {
   let cnv = createCanvas(windowWidth, windowHeight);
   
-  // SAFARI SHIELDS
+  // SAFARI & MOBILE STABILITY SHIELDS
   cnv.style('touch-action', 'none'); 
   cnv.style('-webkit-tap-highlight-color', 'transparent'); 
+  cnv.style('-webkit-user-select', 'none');
+  cnv.style('user-select', 'none');
 
+  // The moment you two met (Jan 12, 2026, 6:46 PM)
   startTime = new Date(2026, 0, 12, 18, 46); 
   angleMode(DEGREES);
   
   photoPos = createVector(width/2, height/2);
   moonPos = createVector(width/2, height/2);
 
+  // Initialize background stars
   for (let i = 0; i < 100; i++) {
     stars.push({
       x: random(width), y: random(height),
@@ -45,18 +50,18 @@ function draw() {
   }
 }
 
-// --- SYNCED INTERACTION ---
+// --- SYNCED INTERACTION LOGIC ---
 
 function startNow() {
-  // Only trigger if Link is shown AND Song is ready
+  // Only trigger if Link is shown, not started, and music is buffered
   if (showLink && !experienceStarted && mySong.isLoaded()) {
     
-    // Force Audio Unlock first
+    // 1. Immediate Audio Unlock (Crucial for Safari)
     userStartAudio(); 
     mySong.setVolume(1.0);
     mySong.play(); 
     
-    // Start Animation at the exact same millisecond
+    // 2. Instant Animation Trigger
     experienceStarted = true;
     eventTimer = 0;
     msgOpacity = 0;
@@ -66,7 +71,7 @@ function startNow() {
 
 function touchStarted() {
   startNow();
-  return false; // Blocks Safari's "Check for scroll" delay
+  return false; // Prevents Safari from delaying the tap
 }
 
 function mousePressed() {
@@ -76,10 +81,12 @@ function mousePressed() {
 // --- VISUAL STAGES ---
 
 function drawBouquetStage() {
+    // Background flowers
     drawFloatingFlower(width * 0.15, height * 0.15, d * 0.45, color(130, 80, 255, 140));
     drawFloatingFlower(width * 0.85, height * 0.15, d * 0.45, color(0, 200, 200, 140));
     drawFloatingFlower(width * 0.85, height * 0.85, d * 0.45, color(255, 140, 120, 140));
 
+    // Central Flower
     push();
     translate(width / 2, height / 2 - 50);
     drawAura(d, color(255, 60, 100)); 
@@ -91,13 +98,11 @@ function drawBouquetStage() {
     }
     pop();
     
-    // Only show the "Touch Me" link once the bouquet is grown AND music is ready
+    // Grow animation
     if (d < 180) {
       d += 0.8;
-    } else {
-      if (mySong.isLoaded()) {
-        showLink = true;
-      }
+    } else if (mySong.isLoaded()) {
+      showLink = true;
     }
     
     if (showLink) drawTerminalUI();
@@ -106,6 +111,7 @@ function drawBouquetStage() {
 function drawWhiteHoleTransition() {
   eventTimer += (1/60); 
   
+  // 1. THE ACCRETION DISC (4s Spew + 3s Collapse)
   if (eventTimer < 7) { 
     push();
     translate(width/2, height/2);
@@ -128,6 +134,7 @@ function drawWhiteHoleTransition() {
     pop();
   }
 
+  // 2. THE MOVEMENT LOGIC
   if (eventTimer > 0.2) {
     let targetPhotoY = height/2 + sin(frameCount * 1.5) * 5;
     photoPos.y = lerp(photoPos.y, targetPhotoY, 0.035);
@@ -136,8 +143,10 @@ function drawWhiteHoleTransition() {
     if (msgOpacity < 255) msgOpacity += 1.8;
   }
 
+  // 3. FINAL RENDER
   if (msgOpacity > 5) {
     drawCrescentMoon(moonPos.x, moonPos.y, 0.8);
+    
     let imgRatio = myImage.width / myImage.height;
     let drawW = width * 0.45; 
     let drawH = drawW / imgRatio;
@@ -154,6 +163,7 @@ function drawWhiteHoleTransition() {
     
     if (msgOpacity > 150) {
       drawRevealedText(photoPos.x, photoPos.y, drawW);
+      // Fixed Footer Text
       fill(0, 255, 150, msgOpacity - 100); 
       textAlign(CENTER); textFont('Courier New'); textSize(12);
       text("> [STATUS]: Wassup Short-Circuit. Enjoy the view.😉", width / 2, height - 60);
@@ -161,7 +171,44 @@ function drawWhiteHoleTransition() {
   }
 }
 
-// --- ALL OTHER HELPERS ---
+// --- HELPER COMPONENTS ---
+
+function drawTerminalUI() {
+  fill(0, 255, 150); textFont('Courier New'); textAlign(LEFT);
+  
+  textSize(14);
+  textStyle(NORMAL);
+  let lines = "> [SYSTEM]: Gentleman at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
+  if (frameCount % 2 === 0 && charIndex < lines.length) { 
+    terminalText += lines.charAt(charIndex); 
+    charIndex++; 
+  }
+  noStroke(); text(terminalText, 30, height - 140);
+
+  if (charIndex >= lines.length) {
+    // BOLD ITALIC COUNTER (Your requested change)
+    push();
+    textStyle(BOLDITALIC);
+    textSize(15);
+    text("> [STATUS]: Train incident: " + calculateTime(startTime), 30, height - 80);
+    pop();
+
+    // Pulse prompt
+    push();
+    fill(255, abs(sin(frameCount * 3)) * 255); 
+    textAlign(CENTER);
+    textStyle(BOLD);
+    text("[ TOUCH ME! ]", width/2, height/2 - 50);
+    pop();
+  }
+}
+
+function calculateTime(start) {
+  let diff = new Date() - start;
+  if (diff < 0) return "0d 00h 00m 00s"; 
+  let d = Math.floor(diff / 86400000), h = Math.floor((diff / 3600000) % 24), m = Math.floor((diff / 60000) % 60), s = Math.floor((diff / 1000) % 60);
+  return d + "d " + nf(h, 2) + "h " + nf(m, 2) + "m " + nf(s, 2) + "s";
+}
 
 function drawRevealedText(px, py, dw) {
   let imgL = px - (dw / 2); 
@@ -188,8 +235,6 @@ function drawAtmosphericBackground() {
     let brightness = map(sin(frameCount * s.blinkSpeed + s.phase), -1, 1, 50, 255);
     fill(255, brightness); circle(s.x, s.y, s.size);
   }
-  fill(100, 50, 255, 5); circle(width * 0.2, height * 0.3, 400 + sin(frameCount * 0.5) * 50);
-  fill(50, 150, 255, 5); circle(width * 0.8, height * 0.7, 500 + cos(frameCount * 0.5) * 60);
 }
 
 function updateMeteors() {
@@ -247,25 +292,6 @@ function drawPetals(x, y, a, col, pSize) {
   push(); translate(x, y); rotate(a * 2); noStroke(); fill(col); 
   for (let i = 0; i < 5; i++) { ellipse(0, 2, 3 * pSize, 6 * pSize); rotate(72); }
   fill(255, 200, 0); circle(0, 0, 1.5 * pSize); pop();
-}
-
-function drawTerminalUI() {
-  fill(0, 255, 150); textFont('Courier New'); textSize(14); textAlign(LEFT);
-  let lines = "> [SYSTEM]: Gentleman at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
-  if (frameCount % 2 === 0 && charIndex < lines.length) { terminalText += lines.charAt(charIndex); charIndex++; }
-  noStroke(); text(terminalText, 30, height - 140);
-  if (charIndex >= lines.length) {
-    text("> [STATUS]: Train incident: " + calculateTime(startTime), 30, height - 80);
-    fill(255, abs(sin(frameCount * 3)) * 255); textAlign(CENTER);
-    text("[ TOUCH ME! ]", width/2, height/2 - 50);
-  }
-}
-
-function calculateTime(start) {
-  let diff = new Date() - start;
-  if (diff < 0) return "0d 00h 00m 00s"; 
-  let d = Math.floor(diff / 86400000), h = Math.floor((diff / 3600000) % 24), m = Math.floor((diff / 60000) % 60), s = Math.floor((diff / 1000) % 60);
-  return d + "d " + nf(h, 2) + "h " + nf(m, 2) + "m " + nf(s, 2) + "s";
 }
 
 function windowResized() { resizeCanvas(windowWidth, windowHeight); }
