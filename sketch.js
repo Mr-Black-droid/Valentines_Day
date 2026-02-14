@@ -178,7 +178,7 @@ function drawTerminalUI() {
   
   textSize(14);
   textStyle(NORMAL);
-  let lines = "> [SYSTEM]: Gentleman at work...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
+  let lines = "> [SYSTEM]: Finalizing bouquet...\n> [ERROR]: 404 - Cliché Not Found. Also,\n you lost the bet.";
   if (frameCount % 2 === 0 && charIndex < lines.length) { 
     terminalText += lines.charAt(charIndex); 
     charIndex++; 
